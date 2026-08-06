@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Person1",
+        "macs": ["ff:ff:ff:ff:ff:ff", "ff:ff:ff:ff:ff:ff"],
+        "ips": ["192.168.1.1", "192.168.1.1"]
+    },
+    {
+        "name": "Person2",
+        "macs": ["ff:ff:ff:ff:ff:ff", "ff:ff:ff:ff:ff:ff"],
+        "ips": ["192.168.1.1", "192.168.1.1"]
+    },
+    {
+        "name": "Person3",
+        "macs": ["ff:ff:ff:ff:ff:ff", "ff:ff:ff:ff:ff:ff"],
+        "ips": ["192.168.1.1", "192.168.1.1"]
+    }
+]

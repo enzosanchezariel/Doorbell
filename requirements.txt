@@ -1,0 +1,4 @@
+scapy==2.7.0
+ping3==5.1.5
+plyer==2.1.0
+requests==2.34.2
