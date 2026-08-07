@@ -4,8 +4,6 @@ import threading
 import time
 import os
 import subprocess
-from plyer import notification
-import requests
 from dotenv import load_dotenv
 import json
 
@@ -27,6 +25,13 @@ for target in TARGETS:
 CHECK_DELAY = int(os.getenv("CHECK_DELAY")) * 60
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
+SYSTEM_NOTIFICATIONS = os.getenv("SYSTEM_NOTIFICATIONS", "false").lower() == "true"
+TELEGRAM_NOTIFICATIONS = os.getenv("TELEGRAM_NOTIFICATIONS", "false").lower() == "true"
+
+if SYSTEM_NOTIFICATIONS:
+    from plyer import notification
+if TELEGRAM_NOTIFICATIONS:
+    import requests
 
 def get_by_mac(pkt):
     for target in TARGETS:
@@ -53,19 +58,21 @@ def check_whos_home():
 def trigger_arrival(target):
     message = target["name"] + " has arrived home."
 
-    notification.notify(
-        title='Someone arrived',
-        message=message,
-        timeout=5
-    )
+    if SYSTEM_NOTIFICATIONS:
+        notification.notify(
+            title='Someone arrived',
+            message=message,
+            timeout=5
+        )
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": message
-    }
+    if TELEGRAM_NOTIFICATIONS:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": message
+        }
 
-    response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload)
 
 
 def packet_callback(pkt):
