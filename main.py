@@ -67,8 +67,8 @@ def check_whos_home():
                     time.sleep(1)
         if successful_ping: target["present"] = True
         else: target["present"] = False
+    clear()
     for target in TARGETS:
-        clear()
         print(target["name"] + ": " + ("yes" if target["present"] else "no"))
     CHECKING_WHOS_HOME = False
     for queued in QUEUED_ARPS:
