@@ -49,7 +49,9 @@ def check_whos_home():
 
     CHECKING_WHOS_HOME = True
     clear()
+    print("STARTING PERIODICAL LAN SCAN")
     for target in TARGETS:
+        print("SCANNING "+target["name"]+"...")
         successful_ping = False
         for ip in target["ips"]:
             if not successful_ping:
@@ -66,6 +68,7 @@ def check_whos_home():
         if successful_ping: target["present"] = True
         else: target["present"] = False
     for target in TARGETS:
+        clear()
         print(target["name"] + ": " + ("yes" if target["present"] else "no"))
     CHECKING_WHOS_HOME = False
     for queued in QUEUED_ARPS:
