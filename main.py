@@ -43,15 +43,21 @@ def get_by_mac(pkt):
 def check_whos_home():
     clear()
     for target in TARGETS:
-        target["present"] = False
-    for target in TARGETS:
+        successful_ping = False
         for ip in target["ips"]:
-            try:
-                delay = ping(ip, timeout=2)
-                if delay is not None and delay is not False:
-                    target["present"] = True
-            except:
-                pass
+            if not successful_ping:
+                strikes = 0
+                while strikes < 3 and not successful_ping:
+                    try:
+                        delay = ping(ip, timeout=2)
+                        if delay is not None and delay is not False:
+                            successful_ping = True
+                    except:
+                        pass
+                    strikes += 1
+                    time.sleep(1)
+        if successful_ping: target["present"] = True
+        else: target["present"] = False
     for target in TARGETS:
         print(target["name"] + ": " + ("yes" if target["present"] else "no"))
 
@@ -80,8 +86,8 @@ def packet_callback(pkt):
         foundByMac = get_by_mac(pkt)
         if foundByMac:
             if not foundByMac["present"]:
+                foundByMac["present"] = True
                 trigger_arrival(foundByMac)
-                check_whos_home()
 
 def check_whos_home_thread():
     while True:
