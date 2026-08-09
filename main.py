@@ -96,7 +96,8 @@ def trigger_arrival(target):
 
             response = requests.post(url, json=payload)
     else:
-        QUEUED_ARPS.append(target)
+        if target not in QUEUED_ARPS:
+            QUEUED_ARPS.append(target)
 
 
 def packet_callback(pkt):
