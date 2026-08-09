@@ -28,6 +28,9 @@ CHAT_ID = os.getenv("CHAT_ID")
 SYSTEM_NOTIFICATIONS = os.getenv("SYSTEM_NOTIFICATIONS", "false").lower() == "true"
 TELEGRAM_NOTIFICATIONS = os.getenv("TELEGRAM_NOTIFICATIONS", "false").lower() == "true"
 
+CHECKING_WHOS_HOME = False
+QUEUED_ARPS = []
+
 if SYSTEM_NOTIFICATIONS:
     from plyer import notification
 if TELEGRAM_NOTIFICATIONS:
@@ -41,6 +44,10 @@ def get_by_mac(pkt):
     return None
 
 def check_whos_home():
+    global CHECKING_WHOS_HOME
+    global QUEUED_ARPS
+
+    CHECKING_WHOS_HOME = True
     clear()
     for target in TARGETS:
         successful_ping = False
@@ -60,25 +67,36 @@ def check_whos_home():
         else: target["present"] = False
     for target in TARGETS:
         print(target["name"] + ": " + ("yes" if target["present"] else "no"))
+    CHECKING_WHOS_HOME = False
+    for queued in QUEUED_ARPS:
+        trigger_arrival(queued)
+    QUEUED_ARPS = []
 
 def trigger_arrival(target):
-    message = target["name"] + " has arrived home."
+    global CHECKING_WHOS_HOME
+    global QUEUED_ARPS
 
-    if SYSTEM_NOTIFICATIONS:
-        notification.notify(
-            title='Someone arrived',
-            message=message,
-            timeout=5
-        )
+    if not CHECKING_WHOS_HOME:
+        target["present"] = True
+        message = target["name"] + " has arrived home."
 
-    if TELEGRAM_NOTIFICATIONS:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": CHAT_ID,
-            "text": message
-        }
+        if SYSTEM_NOTIFICATIONS:
+            notification.notify(
+                title='Someone arrived',
+                message=message,
+                timeout=5
+            )
 
-        response = requests.post(url, json=payload)
+        if TELEGRAM_NOTIFICATIONS:
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            payload = {
+                "chat_id": CHAT_ID,
+                "text": message
+            }
+
+            response = requests.post(url, json=payload)
+    else:
+        QUEUED_ARPS.append(target)
 
 
 def packet_callback(pkt):
@@ -86,7 +104,6 @@ def packet_callback(pkt):
         foundByMac = get_by_mac(pkt)
         if foundByMac:
             if not foundByMac["present"]:
-                foundByMac["present"] = True
                 trigger_arrival(foundByMac)
 
 def check_whos_home_thread():
