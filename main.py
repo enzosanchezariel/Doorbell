@@ -51,7 +51,7 @@ def check_whos_home():
     clear()
     print("STARTING PERIODICAL LAN SCAN")
     for target in TARGETS:
-        print("SCANNING "+target["name"]+"...")
+        print("Scanning "+target["name"]+"...")
         successful_ping = False
         for ip in target["ips"]:
             if not successful_ping:
@@ -100,6 +100,7 @@ def trigger_arrival(target):
             response = requests.post(url, json=payload)
     else:
         if target not in QUEUED_ARPS:
+            print("Queued a target")
             QUEUED_ARPS.append(target)
 
 
